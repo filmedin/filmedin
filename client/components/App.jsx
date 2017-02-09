@@ -10,6 +10,8 @@ import helpers from '../lib/helpers';
 import SearchUser from './SearchUser';
 import SearchFilm from './SearchFilm';
 import NavBar from './NavBar';
+import Forum from './Forum';
+import CreateTopic from './CreateTopic';
 
 class App extends React.Component {
   constructor(props) {
@@ -23,7 +25,10 @@ class App extends React.Component {
       view: '',
       feed: [],
       searchUser: [],
-      searchFilm: []
+      searchFilm: [],
+      username: '',
+      userID: null,
+      topics: []
     }
 
     this.handleSearchUserClick = this.handleSearchUserClick.bind(this);
@@ -35,30 +40,62 @@ class App extends React.Component {
     this.handleLogOutClick = this.handleLogOutClick.bind(this);
     this.addFriend = this.addFriend.bind(this);
     this.rateFilm = this.rateFilm.bind(this);
+    this.handleForumClick = this.handleForumClick.bind(this);
+    this.handleCreateTopicClick = this.handleCreateTopicClick.bind(this);
   }
   componentWillMount () {
+    this.getTopics();
     if (window.localStorage.getItem('filmedInToken')) {
       this.setState({isLoggedIn:true});
       this.handleHomeClick();
     }
   }
+
   addFriend(friend) {
     helpers.addFriend(friend.id).then(res => {
       this.handleHomeClick();
     });
   }
+
   handleSearchUserClick(searchUser) {
     this.setState({
       searchUser: searchUser,
       view: 'showSearchUserView'
     })
   }
+
   rateFilm(rating, filmid) {
-    
+
     helpers.addRating(filmid, rating, '').then(response => {
       console.log('rated');
     })
   }
+
+  getTopics() {
+    helpers.getTopics()
+      .then(resp => {
+        this.setState({
+          topics: resp.data
+        });
+        console.log('this.state.topics === ', this.state.topics);
+      })
+      .catch(err => {
+        console.log('ERROR: ', err);
+      });
+  }
+
+  handleCreateTopicClick() {
+    this.setState({
+      view: 'showCreateTopicView'
+    })
+  }
+
+  handleCreateMessageClick() {
+    this.setState({
+      view: 'showCreateMessageView'
+    })
+  }
+
   handleSearchFilmClick(searchFilm) {
     this.setState({
       searchFilm: searchFilm,
@@ -66,6 +103,11 @@ class App extends React.Component {
     })
   }
 
+  handleForumClick() {
+    this.setState({
+      view: 'showForumView'
+    })
+  }
 
   handleLogOutClick() {
     window.localStorage.removeItem('filmedInToken');
@@ -77,6 +119,19 @@ class App extends React.Component {
 
   handleLogInClick(username) {
     this.handleHomeClick();
+    this.setState({
+      username: username
+    });
+    helpers.getUserIdByName(username)
+      .then(resp => {
+        const userID = Number(resp.data[0].id)
+        this.setState({
+          userID: userID
+        })
+      })
+      .catch(err => {
+        console.log('error clientside', err);
+      })
   }
 
 
@@ -104,7 +159,6 @@ class App extends React.Component {
 
   handleHomeClick() {
     helpers.getHome().then(response => {
-      console.log(response.data);
       helpers.getFeed().then(feed => {
         response.data.friends = response.data.friends.filter(friend => (friend.ID !== 0))
         this.setState({
@@ -120,11 +174,12 @@ class App extends React.Component {
   }
 
   render() {
+    console.log('username', this.state.username);
 	  if (!this.state.isLoggedIn) {
       return (
-        <SignUp 
-          handleLogInClick={this.handleLogInClick} 
-        /> 
+        <SignUp
+          handleLogInClick={this.handleLogInClick}
+        />
       )
     } else {
       return (
@@ -134,6 +189,7 @@ class App extends React.Component {
             handleLogOutClick={this.handleLogOutClick}
             searchUser={this.handleSearchUserClick}
             searchFilm={this.handleSearchFilmClick}
+            handleForumClick={this.handleForumClick}
           />
           <div className="bodyContent">
           {
@@ -157,19 +213,32 @@ class App extends React.Component {
                   handleUserClick={this.handleUserClick}
                   user={this.state.clickedUser}
                   addFriend={this.addFriend}
-                />              
+                />
             ) : (this.state.view === 'showSearchFilmView') ? (
                 <SearchFilm
                   search={this.state.searchFilm}
                   handleFilmClick={this.handleFilmClick}
-                />               
+                />
+            ) : (this.state.view === 'showForumView') ? (
+                <Forum 
+                  topics={this.state.topics}
+                  handleCreateTopicClick={this.handleCreateTopicClick}
+                />
+            ) : (this.state.view === 'showCreateTopicView') ? (
+                <CreateTopic 
+                  
+                />
+            ) : (this.state.view === 'showCreateMessageView') ? (
+                <CreateMessage 
+
+                />
             ) : (
                 <SearchUser
                   friends={this.state.profile.friends}
                   search={this.state.searchUser}
                   handleUserClick={this.handleUserClick}
                   addFriend={this.addFriend}
-                />              
+                />
             )
           }
           </div>

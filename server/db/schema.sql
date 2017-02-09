@@ -1,16 +1,17 @@
+-- USE heroku_a82769b4f508eba;
+
 -- DROP DATABASE IF EXISTS filmedin;
 
 -- CREATE DATABASE filmedin;
 
--- USE filmedin;
+USE heroku_52b4a7557cf5bb8;
 
-USE heroku_a82769b4f508eba;
 DROP TABLE IF EXISTS rating;
 DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS film;
 DROP TABLE IF EXISTS profile;
 DROP TABLE IF EXISTS user;
-    
+
 CREATE TABLE user (
   id INTEGER NOT NULL AUTO_INCREMENT,
   username VARCHAR(255) NOT NULL,
@@ -21,11 +22,11 @@ CREATE TABLE user (
 
 -- ---
 -- Table profile
--- 
+--
 -- ---
 
 DROP TABLE IF EXISTS profile;
-    
+
 CREATE TABLE profile (
   id INTEGER NOT NULL AUTO_INCREMENT,
   userID INTEGER NOT NULL,
@@ -40,11 +41,11 @@ CREATE TABLE profile (
 
 -- ---
 -- Table movie
--- 
+--
 -- ---
 
 DROP TABLE IF EXISTS film;
-    
+
 CREATE TABLE film (
  id INTEGER NOT NULL AUTO_INCREMENT,
   guideBox INTEGER NOT NULL,
@@ -53,7 +54,7 @@ CREATE TABLE film (
   overview VARCHAR(1200) NULL,
   directors VARCHAR(255) NULL,
   writers VARCHAR(255) NULL,
-  actors VARCHAR(1200) NULL,
+  actors VARCHAR(5000) NULL,
   posterURL VARCHAR(511) NULL,
   runtime VARCHAR(50) NULL,
   genre VARCHAR(255) NULL,
@@ -70,12 +71,42 @@ CREATE TABLE film (
 );
 
 -- ---
+-- Table topic
+--
+-- ---
+DROP TABLE IF EXISTS topic;
+
+CREATE TABLE topic (
+  id INTEGER NOT NULL AUTO_INCREMENT,
+  topic VARCHAR(255) NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
+-- ---
+-- Table message
+--
+-- ---
+DROP TABLE IF EXISTS message;
+
+CREATE TABLE message (
+  id INTEGER NOT NULL AUTO_INCREMENT,
+  userID INTEGER NOT NULL,
+  topicID INTEGER NOT NULL,
+  message VARCHAR(1200) NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
+-- ---
 -- Table rating
--- 
+--
 -- ---
 
 DROP TABLE IF EXISTS rating;
-    
+
 CREATE TABLE rating (
   id INTEGER NOT NULL AUTO_INCREMENT,
   profileID INTEGER NOT NULL,
@@ -88,11 +119,11 @@ CREATE TABLE rating (
 
 -- ---
 -- Table friends
--- 
+--
 -- ---
 
 DROP TABLE IF EXISTS friends;
-    
+
 CREATE TABLE friends (
   id INTEGER NOT NULL AUTO_INCREMENT,
   primaryID INTEGER NOT NULL,
@@ -102,7 +133,7 @@ CREATE TABLE friends (
 );
 
 -- ---
--- Foreign Keys 
+-- Foreign Keys
 -- ---
 
 ALTER TABLE profile ADD FOREIGN KEY (userID) REFERENCES user (id);
@@ -110,3 +141,5 @@ ALTER TABLE rating ADD FOREIGN KEY (profileID) REFERENCES profile (id);
 ALTER TABLE rating ADD FOREIGN KEY (filmID) REFERENCES film (id);
 ALTER TABLE friends ADD FOREIGN KEY (primaryID) REFERENCES profile (id);
 ALTER TABLE friends ADD FOREIGN KEY (friendID) REFERENCES profile (id);
+ALTER TABLE message ADD FOREIGN KEY (userID) REFERENCES user (id);
+ALTER TABLE message ADD FOREIGN KEY (topicID) REFERENCES topic (id);
