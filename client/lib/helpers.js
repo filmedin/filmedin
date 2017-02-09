@@ -9,7 +9,7 @@ var getRequest = function (url) {
 
     },
     url: url,
-    baseURL: 'https://filmedin.herokuapp.com/',
+    baseURL: 'http://localhost:5000/',
     method: 'GET'
   }
   return request;
@@ -19,14 +19,14 @@ var helpers = {};
 
 helpers.logInUser = function(data) {
   return axios.request({
-    url: 'https://filmedin.herokuapp.com/signin',
+    url: 'http://localhost:5000/signin',
     method: 'POST',
     data: data
   });
 }
 helpers.signUpUser = function(data) {
   return axios.request({
-    url: 'https://filmedin.herokuapp.com/signup',
+    url: 'http://localhost:5000/signup',
     method: 'POST',
     data: data
   });
@@ -52,7 +52,7 @@ helpers.searchFilm = function(search) {
 }
 helpers.addFriend = function(friendID) {
   return axios.request({
-    url: 'https://filmedin.herokuapp.com/friend',
+    url: 'http://localhost:5000/friend',
     method: 'POST',
     headers: {
       'x-access-token': window.localStorage.getItem('filmedInToken'),
@@ -65,7 +65,7 @@ helpers.addFriend = function(friendID) {
 }
 helpers.addRating = function(filmID, rating, review) {
   return axios.request({
-    url: 'https://filmedin.herokuapp.com/rating',
+    url: 'http://localhost:5000/rating',
     method: 'POST',
     headers: {
       'x-access-token': window.localStorage.getItem('filmedInToken'),
@@ -96,4 +96,56 @@ helpers.dateDiff = function(date) {
   var mm = Math.floor(msec / 1000 / 60);
   return (dd !== 0 ? (dd + "d ") : "") + (hh !== 0 ? (hh + "h ") : "") + (mm !== 0 ? (mm + "m ") : "");
 }
+
+helpers.getUserIdByName = function(username) {
+  return axios({
+    method: 'get',
+    url: 'http://localhost:5000/users',
+    params: {
+      username: username
+    }
+  });
+}
+
+helpers.getMessagesByTopicId = function(topicId) {
+  /* TODO */
+}
+
+helpers.getTopics = function () {
+  return axios({
+    method: 'get',
+    url: 'http://localhost:5000/topics'
+  });
+}
+
+helpers.postMessage = function(topicID, topicMessage, userID) {
+  return axios.request({
+  url: 'http://localhost:5000/postMessage',
+    method: 'POST',
+    headers: {
+      'x-access-token': window.localStorage.getItem('filmedInToken'),
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    data: {
+      topicID: topicID,
+      topicMessage: topicMessage,
+      userID: userID
+    }
+  });
+}
+
+helpers.postNewTopic = function(topicName) {
+  return axios.request({
+  url: 'http://localhost:5000/postTopic',
+    method: 'POST',
+    headers: {
+      'x-access-token': window.localStorage.getItem('filmedInToken'),
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    data: {
+      topicName: topicName
+    }
+  });
+}
+
 export default helpers
